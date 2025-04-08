@@ -30,20 +30,16 @@ export const App = () => {
   useEffect(() => {
     const setupNotifications = async () => {
       try {
-        // 1. Register for push notifications and get token
         const token = await registerForPushNotifications();
 
         if (token) {
-          // 2. Save token to user's profile in Firestore
           await saveExpoPushTokenToUserProfile(token);
           console.log("FCM token registered and saved");
         }
 
-        // 3. Set up notification handler
         const unsubscribe = handleNotificationReceived((data) => {
           console.log("Notification received:", data);
 
-          // Check if navigation is ready
           if (navigationRef.isReady()) {
             if (data.type === "friend_request") {
               navigationRef.navigate("FriendRequestScreen");
@@ -56,7 +52,6 @@ export const App = () => {
           }
         });
 
-        // 4. Return cleanup function
         return () => {
           unsubscribe?.();
         };
