@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  Animated,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import Swiper from "react-native-deck-swiper";
 import {
   collection,
@@ -28,12 +21,12 @@ const AthleteExploreScreen = () => {
 
   const fetchUsers = async () => {
     try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) return;
-      setCurrentUser(currentUser);
+      const user = auth.currentUser;
+      if (!user) return;
+      setCurrentUser(user);
 
       const usersRef = collection(db, "users");
-      const q = query(usersRef, where("__name__", "!=", currentUser.uid));
+      const q = query(usersRef, where("__name__", "!=", user.uid));
       const querySnapshot = await getDocs(q);
 
       const usersData = [];
@@ -51,25 +44,51 @@ const AthleteExploreScreen = () => {
     const swipedUser = users[cardIndex];
 
     try {
-      await setDoc(doc(collection(db, "friendRequests")), {
-        fromUser: doc(db, "users", currentUser.uid),
-        toUser: doc(db, "users", swipedUser.id),
+      const friendRequestRef = doc(
+        db,
+        "friendRequests",
+        `${currentUser.uid}_${swipedUser.id}`
+      );
+
+      await setDoc(friendRequestRef, {
+        fromUserId: currentUser.uid,
+        toUserId: swipedUser.id,
         status: "pending",
         createdAt: new Date(),
       });
 
       await setDoc(doc(collection(db, "notifications")), {
-        recipient: doc(db, "users", swipedUser.id),
-        sender: doc(db, "users", currentUser.uid),
+        recipient: swipedUser.id,
+        senderId: currentUser.uid,
         type: "friend_request",
         read: false,
         createdAt: new Date(),
-        relatedId: doc(
-          db,
-          "friendRequests",
-          `${currentUser.uid}_${swipedUser.id}`
-        ).id,
+        relatedId: friendRequestRef.id,
       });
+
+      if (swipedUser.fcmToken) {
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-Encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: swipedUser.fcmToken,
+            sound: "default",
+            title: "New Friend Request",
+            body: `${
+              currentUser.displayName || "Someone"
+            } sent you a friend request!`,
+            data: {
+              type: "friend_request",
+              senderId: currentUser.uid,
+              relatedId: friendRequestRef.id,
+            },
+          }),
+        });
+      }
 
       Alert.alert("Friend request sent!");
     } catch (error) {

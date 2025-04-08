@@ -7,7 +7,14 @@ import {
   Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db, auth } from "../../../../firebaseConfig";
 
 const ChatListScreen = ({ navigation }) => {
@@ -24,11 +31,7 @@ const ChatListScreen = ({ navigation }) => {
 
       const q = query(
         collection(db, "chats"),
-        where(
-          "participants",
-          "array-contains",
-          doc(db, "users", currentUser.uid)
-        )
+        where("participants", "array-contains", currentUser.uid)
       );
 
       const querySnapshot = await getDocs(q);
@@ -37,14 +40,19 @@ const ChatListScreen = ({ navigation }) => {
       for (const docRef of querySnapshot.docs) {
         const chat = docRef.data();
         const otherUserId = chat.participants.find(
-          (participant) => participant.id !== currentUser.uid
+          (uid) => uid !== currentUser.uid
         );
 
         if (otherUserId) {
-          const otherUserSnap = await getDoc(otherUserId);
+          const otherUserSnap = await getDoc(doc(db, "users", otherUserId));
+          const otherUserData = otherUserSnap.data();
+
           chatsData.push({
             id: docRef.id,
-            otherUser: otherUserSnap.data(),
+            otherUser: {
+              id: otherUserId,
+              ...otherUserData,
+            },
             lastMessage: chat.lastMessage,
             lastMessageTime: chat.lastMessageTime?.toDate(),
           });

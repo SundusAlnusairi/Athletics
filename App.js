@@ -72,7 +72,7 @@ export const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
-          initialRouteName="RegisterUserScreen"
+          initialRouteName="LogUserInScreen"
           screenOptions={{
             headerStyle: { backgroundColor: "black" },
             headerTintColor: "white",

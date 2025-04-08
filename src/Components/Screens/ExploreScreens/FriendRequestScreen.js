@@ -15,6 +15,7 @@ import {
   doc,
   updateDoc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../../firebaseConfig";
 
@@ -64,28 +65,53 @@ const FriendRequestScreen = () => {
       });
 
       await setDoc(doc(collection(db, "friends")), {
-        user1: doc(db, "users", currentUser.uid),
-        user2: doc(db, "users", fromUserId),
+        user1: currentUser.uid,
+        user2: fromUserId,
         createdAt: new Date(),
       });
 
-      const chatRef = await setDoc(doc(collection(db, "chats")), {
-        participants: [
-          doc(db, "users", currentUser.uid),
-          doc(db, "users", fromUserId),
-        ],
+      const chatRef = doc(collection(db, "chats"));
+      await setDoc(chatRef, {
+        participants: [currentUser.uid, fromUserId],
         lastMessage: "",
         lastMessageTime: new Date(),
       });
 
       await setDoc(doc(collection(db, "notifications")), {
-        recipient: doc(db, "users", fromUserId),
-        sender: doc(db, "users", currentUser.uid),
+        recipient: fromUserId,
+        senderId: currentUser.uid,
         type: "friend_request_accepted",
         read: false,
         createdAt: new Date(),
         relatedId: chatRef.id,
       });
+
+      const fromUserSnap = await getDoc(doc(db, "users", fromUserId));
+      const senderFCM = fromUserSnap.data().fcmToken;
+
+      if (senderFCM) {
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-Encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: senderFCM,
+            sound: "default",
+            title: "Friend Request Accepted",
+            body: `${
+              currentUser.displayName || "Someone"
+            } accepted your request!`,
+            data: {
+              type: "friend_request_accepted",
+              chatId: chatRef.id,
+              senderId: currentUser.uid,
+            },
+          }),
+        });
+      }
 
       fetchFriendRequests();
       Alert.alert("Friend request accepted!");

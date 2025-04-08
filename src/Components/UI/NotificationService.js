@@ -30,7 +30,7 @@ export const registerForPushNotifications = async () => {
     }
 
     if (finalStatus !== "granted") {
-      console.log("Failed to get push token for push notification!");
+      console.log("Permission for notifications not granted");
       return null;
     }
 
@@ -46,19 +46,49 @@ export const registerForPushNotifications = async () => {
 };
 
 export const handleNotificationReceived = (callback) => {
-  const subscription = Notifications.addNotificationReceivedListener(
+  const foregroundSub = Notifications.addNotificationReceivedListener(
     (notification) => {
-      if (callback) callback(notification.request.content.data);
+      if (callback) {
+        callback(notification.request.content.data);
+      }
     }
   );
 
-  const responseSubscription =
-    Notifications.addNotificationResponseReceivedListener((response) => {
-      if (callback) callback(response.notification.request.content.data);
-    });
+  const responseSub = Notifications.addNotificationResponseReceivedListener(
+    (response) => {
+      if (callback) {
+        callback(response.notification.request.content.data);
+      }
+    }
+  );
 
   return () => {
-    subscription.remove();
-    responseSubscription.remove();
+    foregroundSub.remove();
+    responseSub.remove();
   };
+};
+
+export const handleNotificationNavigation = async (data, navigationRef) => {
+  if (!data || !navigationRef?.isReady()) return;
+
+  switch (data.type) {
+    case "friend_request":
+      navigationRef.navigate("FriendRequestScreen");
+      break;
+    case "message":
+      const senderRef = doc(db, "users", data.senderId);
+      const senderSnap = await getDoc(senderRef);
+      const senderData = senderSnap.exists() ? senderSnap.data() : null;
+
+      navigationRef.navigate("ChatScreen", {
+        chatId: data.chatId,
+        otherUser: {
+          id: data.senderId,
+          ...senderData,
+        },
+      });
+      break;
+    default:
+      break;
+  }
 };

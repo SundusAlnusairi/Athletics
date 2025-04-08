@@ -19,18 +19,22 @@ import {
   setDoc,
   serverTimestamp,
   orderBy,
+  getDoc,
 } from "firebase/firestore";
-import { db } from "../../../../firebaseConfig";
+import { db, auth } from "../../../../firebaseConfig";
 
 const ChatScreen = ({ route }) => {
   const { chatId, otherUser } = route.params;
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
 
+  //   console.log( otherUser);
+  //   console.log( otherUser?.id);
+
   useEffect(() => {
     const q = query(
       collection(db, "messages"),
-      where("chatId", "==", doc(db, "chats", chatId)),
+      where("chatId", "==", chatId),
       orderBy("createdAt", "asc")
     );
 
@@ -50,10 +54,12 @@ const ChatScreen = ({ route }) => {
 
     try {
       const currentUser = auth.currentUser;
+      const senderId = currentUser.uid;
+      const recipientId = otherUser.id;
 
       await setDoc(doc(collection(db, "messages")), {
-        chatId: doc(db, "chats", chatId),
-        sender: doc(db, "users", currentUser.uid),
+        chatId: chatId,
+        senderId: senderId,
         text: messageText,
         createdAt: serverTimestamp(),
       });
@@ -63,19 +69,48 @@ const ChatScreen = ({ route }) => {
         {
           lastMessage: messageText,
           lastMessageTime: serverTimestamp(),
-          lastMessageSender: doc(db, "users", currentUser.uid),
+          lastMessageSender: senderId,
         },
         { merge: true }
       );
 
       await setDoc(doc(collection(db, "notifications")), {
-        recipient: doc(db, "users", otherUser.id),
-        sender: doc(db, "users", currentUser.uid),
+        recipient: recipientId,
+        senderId: senderId,
         type: "message",
         read: false,
         createdAt: serverTimestamp(),
         relatedId: chatId,
       });
+
+      const recipientSnap = await getDoc(doc(db, "users", recipientId));
+      const recipientData = recipientSnap.exists()
+        ? recipientSnap.data()
+        : null;
+
+      if (recipientData?.fcmToken) {
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-Encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: recipientData.fcmToken,
+            sound: "default",
+            title: "New Message",
+            body: messageText,
+            data: {
+              type: "message",
+              chatId: chatId,
+              senderId: senderId,
+            },
+          }),
+        });
+      } else {
+        console.warn("Recipient has no fcmToken saved.");
+      }
 
       setMessageText("");
     } catch (error) {
@@ -95,7 +130,7 @@ const ChatScreen = ({ route }) => {
           <View
             style={[
               styles.messageContainer,
-              item.sender.id === auth.currentUser?.uid
+              item.senderId === auth.currentUser?.uid
                 ? styles.sentMessage
                 : styles.receivedMessage,
             ]}

@@ -15,6 +15,7 @@ import {
   doc,
   getDoc,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../../firebaseConfig";
 
@@ -32,7 +33,7 @@ const NotificationsScreen = ({ navigation }) => {
 
       const q = query(
         collection(db, "notifications"),
-        where("recipient", "==", doc(db, "users", currentUser.uid)),
+        where("recipient", "==", currentUser.uid),
         where("read", "==", false)
       );
 
@@ -43,15 +44,18 @@ const NotificationsScreen = ({ navigation }) => {
         const notification = docRef.data();
 
         let senderData = {};
-        if (notification.sender) {
-          const senderSnap = await getDoc(notification.sender);
+        if (notification.senderId) {
+          const senderSnap = await getDoc(
+            doc(db, "users", notification.senderId)
+          );
           senderData = senderSnap.exists() ? senderSnap.data() : {};
+          senderData.id = notification.senderId;
         }
 
         notificationsData.push({
           id: docRef.id,
-          sender: senderData,
           ...notification,
+          sender: senderData,
         });
       }
 
@@ -69,8 +73,49 @@ const NotificationsScreen = ({ navigation }) => {
 
       switch (notification.type) {
         case "friend_request":
-          navigation.navigate("FriendRequestScreen");
+          Alert.alert(
+            "Friend Request",
+            `${
+              notification.sender?.name || "Someone"
+            } sent you a friend request.`,
+            [
+              {
+                text: "Accept",
+                onPress: async () => {
+                  try {
+                    const currentUser = auth.currentUser;
+
+                    await setDoc(doc(collection(db, "friends")), {
+                      user1: currentUser.uid,
+                      user2: notification.senderId,
+                      createdAt: new Date(),
+                    });
+
+                    const chatRef = doc(collection(db, "chats"));
+                    await setDoc(chatRef, {
+                      participants: [currentUser.uid, notification.senderId],
+                      createdAt: new Date(),
+                      lastMessage: "",
+                    });
+
+                    Alert.alert("Friend request accepted!");
+                    fetchNotifications();
+                  } catch (error) {
+                    Alert.alert("Error", error.message);
+                  }
+                },
+              },
+              {
+                text: "Decline",
+                style: "cancel",
+                onPress: async () => {
+                  fetchNotifications();
+                },
+              },
+            ]
+          );
           break;
+
         case "friend_request_accepted":
         case "message":
           navigation.navigate("ChatScreen", {
@@ -78,6 +123,7 @@ const NotificationsScreen = ({ navigation }) => {
             otherUser: notification.sender,
           });
           break;
+
         default:
           break;
       }
@@ -98,7 +144,9 @@ const NotificationsScreen = ({ navigation }) => {
             style={styles.notificationItem}
             onPress={() => handleNotificationPress(item)}
           >
-            <Text style={styles.notificationTitle}>{item.sender.name}</Text>
+            <Text style={styles.notificationTitle}>
+              {item.sender?.name || "Someone"}
+            </Text>
             <Text style={styles.notificationText}>
               {item.type === "friend_request"
                 ? "Sent you a friend request"
