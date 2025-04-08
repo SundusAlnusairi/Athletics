@@ -25,13 +25,20 @@ const AthleteExploreScreen = () => {
       if (!user) return;
       setCurrentUser(user);
 
+      const swipedRef = collection(db, "friendRequests");
+      const swipedQuery = query(swipedRef, where("fromUserId", "==", user.uid));
+      const swipedSnap = await getDocs(swipedQuery);
+      const swipedIds = swipedSnap.docs.map((doc) => doc.data().toUserId);
+
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("__name__", "!=", user.uid));
       const querySnapshot = await getDocs(q);
 
       const usersData = [];
       querySnapshot.forEach((doc) => {
-        usersData.push({ id: doc.id, ...doc.data() });
+        if (!swipedIds.includes(doc.id)) {
+          usersData.push({ id: doc.id, ...doc.data() });
+        }
       });
 
       setUsers(usersData);
