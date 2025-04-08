@@ -22,6 +22,7 @@ import EditProfileScreen from "./src/Components/Screens/ProfileScreens/EditProfi
 import ChatScreen from "./src/Components/Screens/ChatScreens/ChatScreen";
 import NotificationsScreen from "./src/Components/Screens/ExploreScreens/NotificationsScreen";
 import FriendRequestScreen from "./src/Components/Screens/ExploreScreens/FriendRequestScreen";
+import WelcomeScreen from "./src/Components/Screens/RegisterationScreens/WelcomeScreen";
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
@@ -67,12 +68,17 @@ export const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
-          initialRouteName="LogUserInScreen"
+          initialRouteName="WelcomeScreen"
           screenOptions={{
             headerStyle: { backgroundColor: "black" },
             headerTintColor: "white",
           }}
         >
+          <Stack.Screen
+            name="WelcomeScreen"
+            component={WelcomeScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="LogUserInScreen"
             component={LogUserInScreen}
@@ -111,7 +117,7 @@ export const App = () => {
           <Stack.Screen
             name="ChatListScreen"
             component={ChatListScreen}
-            options={{ headerShown: true }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="FriendRequestScreen"
@@ -129,7 +135,7 @@ export const App = () => {
           <Stack.Screen
             name="NotificationsScreen"
             component={NotificationsScreen}
-            options={{ headerShown: true, title: "Notifications" }}
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>

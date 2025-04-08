@@ -18,6 +18,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../../firebaseConfig";
+import BottomNav from "../../Navigations/BottomNav";
 
 const NotificationsScreen = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
@@ -160,6 +161,7 @@ const NotificationsScreen = ({ navigation }) => {
           <Text style={styles.emptyText}>No new notifications</Text>
         }
       />
+      <BottomNav />
     </View>
   );
 };
@@ -173,6 +175,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+    top: 40,
   },
   notificationTitle: {
     fontSize: 16,
@@ -184,7 +187,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 90,
   },
 });
 
