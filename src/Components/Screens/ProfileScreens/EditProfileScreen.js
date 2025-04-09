@@ -14,13 +14,21 @@ import Persona from "../../../../assets/persona.png";
 import { updateUserProfile } from "../../Firebase/Auth";
 
 export const EditProfileScreen = ({ navigation, route }) => {
-  const { initialFullName, initialBio, initialWebsite, initialImage } =
-    route.params || {};
+  const {
+    initialFullName,
+    initialBio,
+    initialWebsite,
+    initialImage,
+    initialAge,
+    initialSport,
+  } = route.params || {};
 
   const [bio, setBio] = useState(initialBio || "Bio");
   const [website, setWebsite] = useState(initialWebsite || "www.yoursite.com");
   const [image, setImage] = useState(initialImage || Persona);
   const [fullName, setFullName] = useState(initialFullName || "userName");
+  const [sport, setSport] = useState(initialAge || "Age");
+  const [age, setAge] = useState(initialSport || "Sport");
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -37,13 +45,15 @@ export const EditProfileScreen = ({ navigation, route }) => {
 
   const handleSave = async () => {
     try {
-      await updateUserProfile(fullName, bio, website, image);
+      await updateUserProfile(fullName, bio, website, image, sport, age);
       Alert.alert("Success", "Profile updated successfully!");
       navigation.navigate("UserProfileScreen", {
         initialFullName: fullName,
         updatedBio: bio,
         updatedWebsite: website,
         updatedImage: image,
+        updateAge: age,
+        updateSport: sport,
       });
     } catch (error) {
       Alert.alert("Error", "Failed to update profile. Please try again.");
@@ -69,6 +79,19 @@ export const EditProfileScreen = ({ navigation, route }) => {
         placeholder="Edit Website"
         value={website}
         onChangeText={setWebsite}
+      />
+
+      <InputField
+        placeholder="Enter Sport (e.g. Football)"
+        value={sport}
+        onChangeText={setSport}
+      />
+
+      <InputField
+        placeholder="Enter Age"
+        value={age}
+        onChangeText={setAge}
+        keyboardType="numeric"
       />
 
       <View style={styles.buttonWrapper}>

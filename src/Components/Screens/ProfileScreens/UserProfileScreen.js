@@ -1,10 +1,15 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { useRoute } from "@react-navigation/native";
-import Button from "../../UI/Button";
-import { useState, useEffect } from "react";
-import { Linking } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
+import { auth } from "../../../../firebaseConfig";
 import { getUserProfile } from "../../Firebase/Auth";
+import Button from "../../UI/Button";
 import Persona from "../../../../assets/persona.png";
 import GalleryIcon from "../../../../assets/grid-2.png";
 import CalendarIcon from "../../../../assets/calendar.png";
@@ -12,17 +17,15 @@ import CommentsIcon from "../../../../assets/user.png";
 import ProfileSections from "./ProfileSections";
 import BottomNav from "../../Navigations/BottomNav";
 
-export const UserProfileScreen = ({ navigation }) => {
-  const route = useRoute();
-
-  const { updatedFullName, updatedBio, updatedWebsite, updatedImage } =
-    route.params || {};
-
-  const [fullName, setFullName] = useState(updatedFullName || "UserName");
+const UserProfileScreen = ({ navigation }) => {
+  const [fullName, setFullName] = useState("UserName");
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [bio, setBio] = useState(updatedBio || "Bio");
-  const [website, setWebsite] = useState(updatedWebsite || "your website link");
-  const [image, setImage] = useState(updatedImage || Persona);
+  const [bio, setBio] = useState("Bio");
+  const [website, setWebsite] = useState("www.yoursite.com");
+  const [image, setImage] = useState(Persona);
+  const [userId, setUserId] = useState(null);
+  const [sport, setSport] = useState("Sport");
+  const [age, setAge] = useState("Age");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,6 +36,9 @@ export const UserProfileScreen = ({ navigation }) => {
           setBio(userData.bio || "Bio");
           setWebsite(userData.website || "www.yoursite.com");
           setImage({ uri: userData.image || Persona });
+          setUserId(auth.currentUser?.uid);
+          setSport(userData.sport || "Sport");
+          setAge(userData.age || "Age");
         }
       } catch (error) {
         console.error("Failed to fetch profile:", error);
@@ -64,6 +70,8 @@ export const UserProfileScreen = ({ navigation }) => {
                   initialFullName: fullName,
                   initialWebsite: website,
                   initialImage: image.uri || Persona,
+                  initialSport: sport,
+                  initialAge: age,
                 })
               }
             />
@@ -76,13 +84,7 @@ export const UserProfileScreen = ({ navigation }) => {
           onPress={() => setSelectedTab("posts")}
           style={styles.iconWrapper}
         >
-          <Image
-            source={GalleryIcon}
-            style={[
-              styles.icon,
-              selectedTab === "posts" ? styles.activeIcon : null,
-            ]}
-          />
+          <Image source={GalleryIcon} style={styles.icon} />
           {selectedTab === "posts" && <View style={styles.activeLine} />}
         </TouchableOpacity>
 
@@ -90,13 +92,7 @@ export const UserProfileScreen = ({ navigation }) => {
           onPress={() => setSelectedTab("calendar")}
           style={styles.iconWrapper}
         >
-          <Image
-            source={CalendarIcon}
-            style={[
-              styles.icon,
-              selectedTab === "calendar" ? styles.activeIcon : null,
-            ]}
-          />
+          <Image source={CalendarIcon} style={styles.icon} />
           {selectedTab === "calendar" && <View style={styles.activeLine} />}
         </TouchableOpacity>
 
@@ -104,18 +100,12 @@ export const UserProfileScreen = ({ navigation }) => {
           onPress={() => setSelectedTab("tags")}
           style={styles.iconWrapper}
         >
-          <Image
-            source={CommentsIcon}
-            style={[
-              styles.icon,
-              selectedTab === "tags" ? styles.activeIcon : null,
-            ]}
-          />
+          <Image source={CommentsIcon} style={styles.icon} />
           {selectedTab === "tags" && <View style={styles.activeLine} />}
         </TouchableOpacity>
       </View>
 
-      <ProfileSections selectedTab={selectedTab} />
+      <ProfileSections selectedTab={selectedTab} profileUserId={userId} />
       <BottomNav />
     </View>
   );
@@ -147,7 +137,6 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 60,
-    marginRight: 1,
     top: -5,
   },
   bioContainer: {
@@ -157,7 +146,6 @@ const styles = StyleSheet.create({
   bio: {
     fontSize: 16,
     fontWeight: "bold",
-    width: "100%",
     color: "#fff",
     marginTop: 15,
     marginBottom: 5,
@@ -169,7 +157,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
   },
-
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",

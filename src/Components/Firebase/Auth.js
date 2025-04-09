@@ -83,7 +83,14 @@ export const resetPassword = async (email) => {
   }
 };
 //-----------------------PROFILES---------------------------------
-export const updateUserProfile = async (fullName, bio, website, image) => {
+export const updateUserProfile = async (
+  fullName,
+  bio,
+  website,
+  image,
+  sport,
+  age
+) => {
   const user = auth.currentUser;
   if (!user) {
     throw new Error("User not authenticated");
@@ -99,6 +106,8 @@ export const updateUserProfile = async (fullName, bio, website, image) => {
         bio,
         website,
         image,
+        sport,
+        age,
       },
       { merge: true }
     );

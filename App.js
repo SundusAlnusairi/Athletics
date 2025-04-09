@@ -25,6 +25,7 @@ import FriendRequestScreen from "./src/Components/Screens/ExploreScreens/FriendR
 import WelcomeScreen from "./src/Components/Screens/RegisterationScreens/WelcomeScreen";
 import EditClubScreen from "./src/Components/Screens/ExploreScreens/EditClubScreen";
 import ClubDetailScreen from "./src/Components/Screens/ExploreScreens/ClubDetailScreen";
+import EditAvailabilityCalendar from "./src/Components/Screens/ProfileScreens/EditAvailabilityCalendar";
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
@@ -96,6 +97,11 @@ export const App = () => {
             name="UserProfileScreen"
             component={UserProfileScreen}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EditAvailabilityCalendar"
+            component={EditAvailabilityCalendar}
+            options={{ headerShown: true }}
           />
           <Stack.Screen
             name="EditProfileScreen"

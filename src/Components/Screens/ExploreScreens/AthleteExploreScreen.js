@@ -122,11 +122,12 @@ const AthleteExploreScreen = () => {
                 style={styles.cardImage}
               />
               <View style={styles.overlay}>
-                <Text style={styles.name}>
-                  {card.name} {card.age}
+                <Text style={styles.TopLine}>
+                  <Text style={styles.name}>{card.name}</Text>
+                  <Text style={styles.age}> {card.age}</Text>
                 </Text>
+
                 <Text style={styles.subText}>{card.sport}</Text>
-                <Text style={styles.subText}>{card.availability}</Text>
               </View>
             </View>
           )}
@@ -178,7 +179,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-
+  TopLine: {},
+  age: {
+    fontSize: 20,
+    color: "#fff",
+    fontWeight: "light",
+  },
   name: {
     fontSize: 24,
     fontWeight: "bold",
