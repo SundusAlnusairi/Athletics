@@ -34,7 +34,9 @@ export const registerForPushNotifications = async () => {
       return null;
     }
 
-    const tokenData = await Notifications.getExpoPushTokenAsync();
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: "61804995-600a-4bf1-8a4c-8b23648b6cb7",
+    });
     const token = tokenData.data;
 
     console.log("Expo Push Token:", token);

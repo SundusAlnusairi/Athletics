@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
-import { Button } from "react-native";
+import Button from "../../UI/Button";
 import Football from "../../../../assets/football.png";
 
 export const WelcomeScreen = ({ navigation }) => {
@@ -18,7 +18,7 @@ export const WelcomeScreen = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <Button
           title="Get Started"
-          onPress={() => navigation.navigate("LogUserInScreen")}
+          onPress={() => navigation.navigate("RegisterUserScreen")}
         />
       </View>
     </View>

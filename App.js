@@ -23,6 +23,8 @@ import ChatScreen from "./src/Components/Screens/ChatScreens/ChatScreen";
 import NotificationsScreen from "./src/Components/Screens/ExploreScreens/NotificationsScreen";
 import FriendRequestScreen from "./src/Components/Screens/ExploreScreens/FriendRequestScreen";
 import WelcomeScreen from "./src/Components/Screens/RegisterationScreens/WelcomeScreen";
+import EditClubScreen from "./src/Components/Screens/ExploreScreens/EditClubScreen";
+import ClubDetailScreen from "./src/Components/Screens/ExploreScreens/ClubDetailScreen";
 
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
@@ -102,6 +104,16 @@ export const App = () => {
           <Stack.Screen
             name="ClubExploreScreen"
             component={ClubExploreScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EditClubScreen"
+            component={EditClubScreen}
+            options={{ headerShown: true }}
+          />
+          <Stack.Screen
+            name="ClubDetailScreen"
+            component={ClubDetailScreen}
             options={{ headerShown: true }}
           />
           <Stack.Screen
