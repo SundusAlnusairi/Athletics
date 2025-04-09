@@ -1,12 +1,17 @@
 import React from "react";
-import { Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import AvailabilityCalendar from "./AvailabilityCalendar";
 
-const ProfileSections = ({ selectedTab }) => {
+const ProfileSections = ({ selectedTab, profileUserId }) => {
   switch (selectedTab) {
     case "posts":
       return <Text style={styles.contentText}>📸 Posts Section</Text>;
     case "calendar":
-      return <Text style={styles.contentText}>📅 Calendar Section</Text>;
+      return (
+        <View style={{ marginTop: 10 }}>
+          <AvailabilityCalendar profileUserId={profileUserId} />
+        </View>
+      );
     case "tags":
       return <Text style={styles.contentText}>🏷️ Tagged Section</Text>;
     default:
