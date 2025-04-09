@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Alert } from "react-native";
+import { StyleSheet, Text, View, Alert, Image } from "react-native";
 import Swiper from "react-native-deck-swiper";
 import {
   collection,
@@ -10,6 +10,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../../firebaseConfig";
+import BottomNav from "../../Navigations/BottomNav";
 
 const AthleteExploreScreen = () => {
   const [users, setUsers] = useState([]);
@@ -114,7 +115,19 @@ const AthleteExploreScreen = () => {
           cards={users}
           renderCard={(card) => (
             <View style={styles.card}>
-              <Text style={styles.text}>{card.name}</Text>
+              <Image
+                source={{
+                  uri: card.image || "https://via.placeholder.com/300",
+                }}
+                style={styles.cardImage}
+              />
+              <View style={styles.overlay}>
+                <Text style={styles.name}>
+                  {card.name} {card.age}
+                </Text>
+                <Text style={styles.subText}>{card.sport}</Text>
+                <Text style={styles.subText}>{card.availability}</Text>
+              </View>
             </View>
           )}
           onSwipedRight={handleSwipeRight}
@@ -125,6 +138,8 @@ const AthleteExploreScreen = () => {
       ) : (
         <Text>No users to display</Text>
       )}
+
+      <BottomNav />
     </View>
   );
 };
@@ -134,19 +149,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
-  card: {
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: "#E8E8E8",
-    justifyContent: "center",
-    backgroundColor: "white",
-    height: "70%",
-    padding: 20,
-  },
   text: {
     textAlign: "center",
     fontSize: 50,
     backgroundColor: "transparent",
+  },
+  card: {
+    borderRadius: 12,
+    overflow: "hidden",
+    height: "75%",
+    backgroundColor: "#000",
+    elevation: 5,
+  },
+
+  cardImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    position: "absolute",
+  },
+
+  overlay: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    padding: 10,
+    borderRadius: 10,
+  },
+
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
+  subText: {
+    color: "#ccc",
+    fontSize: 16,
+    marginTop: 2,
   },
 });
 
