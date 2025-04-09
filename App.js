@@ -74,6 +74,7 @@ export const App = () => {
           screenOptions={{
             headerStyle: { backgroundColor: "black" },
             headerTintColor: "white",
+            animation: "none",
           }}
         >
           <Stack.Screen
@@ -119,7 +120,7 @@ export const App = () => {
           <Stack.Screen
             name="AthleteExploreScreen"
             component={AthleteExploreScreen}
-            options={{ headerShown: true }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="UserPostScreen"
