@@ -16,6 +16,7 @@ import CalendarIcon from "../../../../assets/calendar.png";
 import CommentsIcon from "../../../../assets/user.png";
 import ProfileSections from "./ProfileSections";
 import BottomNav from "../../Navigations/BottomNav";
+import { Ionicons } from "@expo/vector-icons";
 
 const UserProfileScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState("UserName");
@@ -35,7 +36,7 @@ const UserProfileScreen = ({ navigation }) => {
           setFullName(userData.name || "username");
           setBio(userData.bio || "Bio");
           setWebsite(userData.website || "www.yoursite.com");
-          setImage({ uri: userData.image || Persona });
+          setImage(userData.image ? { uri: userData.image } : Persona);
           setUserId(auth.currentUser?.uid);
           setSport(userData.sport || "Sport");
           setAge(userData.age || "Age");
@@ -61,21 +62,21 @@ const UserProfileScreen = ({ navigation }) => {
             <Text style={styles.website}>{website}</Text>
           </TouchableOpacity>
 
-          <View style={styles.buttonWrapper}>
-            <Button
-              title="Edit Profile"
-              onPress={() =>
-                navigation.navigate("EditProfileScreen", {
-                  initialBio: bio,
-                  initialFullName: fullName,
-                  initialWebsite: website,
-                  initialImage: image.uri || Persona,
-                  initialSport: sport,
-                  initialAge: age,
-                })
-              }
-            />
-          </View>
+          <TouchableOpacity
+            style={styles.editIcon}
+            onPress={() =>
+              navigation.navigate("EditProfileScreen", {
+                initialBio: bio,
+                initialFullName: fullName,
+                initialWebsite: website,
+                initialImage: image.uri || Persona,
+                initialSport: sport,
+                initialAge: age,
+              })
+            }
+          >
+            <Ionicons name="create-outline" size={24} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -180,6 +181,14 @@ const styles = StyleSheet.create({
     width: 200,
     marginTop: -80,
     transform: [{ scale: 0.7 }],
+  },
+  editIcon: {
+    position: "absolute",
+    top: -30,
+    right: 10,
+    backgroundColor: "#a40003",
+    padding: 8,
+    borderRadius: 20,
   },
 });
 

@@ -27,8 +27,8 @@ export const EditProfileScreen = ({ navigation, route }) => {
   const [website, setWebsite] = useState(initialWebsite || "www.yoursite.com");
   const [image, setImage] = useState(initialImage || Persona);
   const [fullName, setFullName] = useState(initialFullName || "userName");
-  const [sport, setSport] = useState(initialAge || "Age");
-  const [age, setAge] = useState(initialSport || "Sport");
+  const [sport, setSport] = useState(initialAge || "Sport");
+  const [age, setAge] = useState(initialSport || "Age");
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     width: 200,
-    marginTop: 20,
+    marginTop: 1,
     transform: [{ scale: 0.9 }],
   },
 });

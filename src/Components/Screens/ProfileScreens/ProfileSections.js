@@ -5,7 +5,7 @@ import AvailabilityCalendar from "./AvailabilityCalendar";
 const ProfileSections = ({ selectedTab, profileUserId }) => {
   switch (selectedTab) {
     case "posts":
-      return <Text style={styles.contentText}>📸 Posts Section</Text>;
+      return <Text style={styles.contentText}> Posts Section</Text>;
     case "calendar":
       return (
         <View style={{ marginTop: 10 }}>
@@ -13,9 +13,9 @@ const ProfileSections = ({ selectedTab, profileUserId }) => {
         </View>
       );
     case "tags":
-      return <Text style={styles.contentText}>🏷️ Tagged Section</Text>;
+      return <Text style={styles.contentText}>Tagged Section</Text>;
     default:
-      return <Text style={styles.contentText}>📸 Posts Section</Text>;
+      return <Text style={styles.contentText}>Posts Section</Text>;
   }
 };
 
